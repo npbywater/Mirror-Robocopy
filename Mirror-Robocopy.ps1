@@ -46,10 +46,41 @@ MENU 0:
   - At the prompt it asks the user whether they wish to proceed or
     quit program.
 
+PATH VALIDATION:
+- Before 'MENU 1' is opened, and after entering 'y' in 'MENU 0',
+  'Mirror-Robcopy' attempts to validate the source and target
+  directory paths loaded from the CSV file 'path_list.csv'.
+  - It performs four tests:
+    1. Do all of the source/target paths exist?
+    2. Are any of the source/target directory paths malformed?
+       - 'Malformed' paths are paths that are not form in valid way.
+    3. Are all of the source/target directory paths absolute paths?
+    4. Are the paths either drives (like 'c:\') or share paths (like
+       '\\<server name><share name>')?
+      - These path designations are not allowed.
+      - We don't want to mirror from a source drive into another
+        drive, unless we take care to except the hidden system
+        sub-directories.
+
+    If any of the above tests do not pass, then the following error
+    will appear. Also, the program will EXIT. You must fix these path
+    issues before the program will continue to 'MENU 1'.
+
+    The above lists may contain directory paths that
+    - are either MALFORMED or DO NOT EXIST.
+    - are only DRIVES or RELATIVE paths. Or UNC paths are of the form
+      '\\<server name><share name>'. None are allowed.
+      - Mirrors can only be made into sub-directories. Not drive to
+        a drive or a server share.
+      - This way we don't have to exclude hidden system directories.
+    This program will not run unless these paths are
+    fixed. NOTE: Only absolute paths are allowed.
+
 MENU 1:
 - This menu is the first menu that opens after entering 'y' (yes) at
   the prompt in 'MENU 0'.
-  - It provides the user with the following options:
+  - If the program has validated the directory paths, as described
+    above, you will see the following menu options:
 
     Enter one of the options below at the prompt, and press Enter.
     View file paths:
