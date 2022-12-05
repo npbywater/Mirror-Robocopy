@@ -32,6 +32,22 @@ source_dir    target_dir
 c:\path1      d:\path1\abc
 c:\path2      d:\path2
 
+START UP:
+The file 'run_mirror_robocopy.ps1' is a short start-up script that
+passes the required arguments to file 'Mirror-Robocopy.ps1' (which
+contains the application). The file 'run_mirror_robocopy.ps1' would be
+executed within the shell to start the application. However, you can
+create a shortcut of this file, and then edit the properties of the
+shortcut so that you can double click on the shortcut to start the
+application without using a shell.
+
+The 'target' field of the shortcut would be:
+
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -command "& '.\run_mirror_robocopy.ps1'"
+
+The 'start in' field of the shortcut is the directory that that
+contains the file 'run_mirror_robocopy.ps1'.
+
 MENU 0:
 - This menu is the start-up menu.
   - It informs the user, with warnings, that this program uses the
