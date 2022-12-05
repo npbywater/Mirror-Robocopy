@@ -146,10 +146,44 @@ MENU 2:
       - Again, the 'CURRENT RUN MODE' determines how the MIRROR will
         be performed. Toggle this mode with option 't'.
   - Option 'p' will take the user back to 'MENU 1'.
+
+LOGGING:
+- This program writes the logs produced by Robocopy to the directory
+  specified by parameter 'robocopy_log_dir'.
+- Each log file has the following format:
+  <target directory name>_<date>T<time>_<test or mirror>.log
+  - The <test or mirror> part indicates whether the program was
+    run in 'TEST' or 'MIRROR' mode.
+
+ROBOCOPY:
+The robocopy switches are set rather conservatively in this program.
+They use the default number of threads (so it may be slow), and the
+log files (in '.\logs') only shows changes that have occurred. Note,
+if no changes have occurred, Robocopy logs all of the directories for
+some reason (this may be because I require it to mirror directory
+times). A future revision may allow the user to specify different
+robocopy script options. Also, it will give up on the MIRROR quickly,
+if a problem occurs (the retry '/R' and wait '/W' options are set to
+'1'). The options are expanded to this in the log:
+
+/S /E /DCOPY:T /COPY:DAT /PURGE /MIR /NP /R:1 /W:1
+
+But, in the code, they look like this:
+
+/R:1 /W:1 /MIR /NP /DCOPY:T
+
+.PARAMETER csv_dir_list_file
+Specifies the path to the CSV file that contains a list of source and
+target directories.
+
+.PARAMETER robocopy_log_dir
+Specifies the path to the log directory where the Robocopy logs will
+be written.
 #>
 
 param ([Parameter(Mandatory=$True)]
        [string]$csv_dir_list_file,
+       [Parameter(Mandatory=$True)]
        [string]$robocopy_log_dir)
 
 # By default this program will do MIRROR operations in TEST-mode; the
