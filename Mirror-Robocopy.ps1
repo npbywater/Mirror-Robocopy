@@ -221,10 +221,15 @@ param ([Parameter(Mandatory=$True)]
        [Parameter(Mandatory=$True)]
        [string]$robocopy_log_dir)
 
+$version = "v1.1 (2022-12-05)"
+
 ## MENUS ##
 function Show-Menu0 {
     $prompt = "
     ***** MENU 0 *****
+
+    Program: Mirror-Robocopy
+    Version: $version
 
     ***WARNING*** This interactive program MIRRORs
 
