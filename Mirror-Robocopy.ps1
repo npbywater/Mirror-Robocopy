@@ -8,7 +8,26 @@
 <#
 .SYNOPSIS
 PROGRAM: Mirror-Robocopy
+VERSION: 1.1 (2022-12-05)
+- ISSUE: If there is only one source/directory combination (from the
+  CSV file), then you can't use 'MENU 2' to mirror just that one
+  combination (at index '0'). If you have more than one
+  source/directory combination, you can then select one combination,
+  and it will work via 'MENU 2'. 'MENU 1' works regardless; it mirrors
+  everything; doesn't require using an index.
+  - FIX: Convert the value returned by 'Contruct-PathHash' to an array
+    of one hash. This must be done because 'Construct-PathHash'
+    returns only the hash, instead of an array of one hash when there
+    is only one hash in its local '$hash_array' variable. If there are
+    more than one hash, 'Construct-PathHash' returns an array of
+    hashes as expected.
+- Take into account dynamic typing of variables in Powershell. Move
+  the global variable 'g_runMode' into the Start-Up function.
+- Add conditional code to function 'Start-Up' so that the program
+  exits if there are no source/target paths in the CSV file.
+
 VERSION: 1.0 (2022-12-01)
+- Initial release.
 
 This program takes a list of source and target directories from a CSV
 file and offers the user the opportunity to MIRROR (via Robocopy) the
@@ -201,10 +220,6 @@ param ([Parameter(Mandatory=$True)]
        [string]$csv_dir_list_file,
        [Parameter(Mandatory=$True)]
        [string]$robocopy_log_dir)
-
-# By default this program will do MIRROR operations in TEST-mode; the
-# user has to explicitly tell the program to run in MIRROR-mode.
-$g_runMode = 'TEST'
 
 ## MENUS ##
 function Show-Menu0 {
@@ -500,14 +515,13 @@ function Robocopy-Dirs {
     # If mirroring only one source/target path combination, loop only
     # once with an array of one specific hash.
     if ($copyOnlyOne) {
-        $loopArray = $g_paths[$arrayIndex]
+        $loopArray += $g_paths[$arrayIndex]
         $index = $arrayIndex
     }
     else {
         $loopArray = $g_paths
         $index = 0
     }
-
     foreach ($d in $loopArray) {
         $s = $d["sourceDir"]
         $t = $d["targetDir"]
@@ -639,7 +653,27 @@ function Start-Main () {
             Clear-Host
             Show-Menu0
 
-            $g_paths = Construct-PathHash $(Get-DirSubPaths $csv_dir_list_file)
+            # By default this program will do MIRROR operations in TEST-mode; the
+            # user has to explicitly tell the program to run in MIRROR-mode.
+            $g_runMode = 'TEST'
+
+            $g_paths = @()
+            $paths = Construct-PathHash $(Get-DirSubPaths $csv_dir_list_file)
+
+            if ($paths -ne $null) {
+                # Apparently, if 'Construct-PathHash' creates an array of
+                # one hash, then it only returns the hash. So, we have to
+                # recreate the array of one hash.
+                if ($paths.GetType().Name -eq 'OrderedDictionary') {
+                    $g_paths += $paths
+                }
+                else {
+                    $g_paths = $paths
+                }
+            } else {
+                Write-Host "`nThe CSV file does not have any paths."
+                Exit-Program
+            }
 
             Verify-Paths
 
